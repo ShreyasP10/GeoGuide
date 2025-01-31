@@ -16,9 +16,9 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -58,7 +58,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     getLocation();
                 } else {
                     Log.e("Permission", "Location permission denied.");
-                    // Handle location permission denial gracefully
                     binding.cityTV.setText("Location permission denied");
                 }
             }
@@ -87,11 +86,20 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         ImageButton infoButton = findViewById(R.id.infoButton);
 
-        // Set an OnClickListener
         infoButton.setOnClickListener(v -> {
-            // Navigate to the NextActivity
             Intent intent = new Intent(MainActivity.this, infoActivity.class);
             startActivity(intent);
+        });
+
+        binding.cityTV.setOnClickListener(v -> {
+            if (currentLocation != null) {
+                Intent intentGoToMap = new Intent(MainActivity.this, LocationMap.class);
+                intentGoToMap.putExtra("latitude", currentLocation.getLatitude());
+                intentGoToMap.putExtra("longitude", currentLocation.getLongitude());
+                startActivity(intentGoToMap);
+            } else {
+                Toast.makeText(MainActivity.this, "Fetching location. Please try again.", Toast.LENGTH_SHORT).show();
+            }
         });
     }
 
@@ -120,6 +128,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 public void onLocationResult(@NonNull LocationResult locationResult) {
                     if (locationResult != null && locationResult.getLastLocation() != null) {
                         currentLocation = locationResult.getLastLocation();
+                        Log.d("LocationUpdate", "Latitude: " + currentLocation.getLatitude() +
+                                ", Longitude: " + currentLocation.getLongitude());
                         updateLocationUI();
                     } else {
                         Log.e("LocationError", "Location is null.");
@@ -141,9 +151,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         binding.latitudeTV.setText(MessageFormat.format("Latitude: {0}", currentLocation.getLatitude()));
         binding.longitudeTV.setText(MessageFormat.format("Longitude: {0}", currentLocation.getLongitude()));
-        double latitude_value = currentLocation.getLatitude();
-        double gravity_value = calculateGravity(latitude_value);
-        binding.trueHeadingTV.setText(MessageFormat.format("Gravity: {0}", gravity_value));
+        double latitudeValue = currentLocation.getLatitude();
+        double gravityValue = calculateGravity(latitudeValue);
+        binding.trueHeadingTV.setText(MessageFormat.format("Gravity: {0}", gravityValue));
         getCityName(currentLocation);
     }
 
@@ -210,6 +220,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                             System.currentTimeMillis()
                     );
                     declination = geomagneticField.getDeclination();
+                } else {
+                    Log.e("CompassError", "Current location is null.");
+                    return;
                 }
 
                 float azimuthInDegrees = (float) Math.toDegrees(orientation[0]);
@@ -256,11 +269,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         // Handle changes in sensor accuracy if needed.
     }
 
-    public static double calculateGravity(double latitude_value) {
+    public static double calculateGravity(double latitudeValue) {
         double g0 = 9.780327; // Gravity at the equator (m/s^2)
         double k = 0.00193185138639; // Flattening coefficient
         double e2 = 0.00669437999013; // Eccentricity squared
-        double sinLat = Math.sin(Math.toRadians(latitude_value));
+        double sinLat = Math.sin(Math.toRadians(latitudeValue));
 
         return g0 * (1 + k * sinLat * sinLat) / Math.sqrt(1 - e2 * sinLat * sinLat);
     }
