@@ -35,6 +35,7 @@
             android:id="@+id/infoButton"
             android:layout_width="33dp"
             android:layout_height="32dp"
+            android:layout_marginEnd="8dp"
             android:background="?attr/selectableItemBackground"
             android:contentDescription="Button to See App Info "
             android:scaleType="fitCenter"
@@ -116,7 +117,7 @@
                     android:gravity="center|center_vertical"
                     android:paddingTop="0dp"
                     android:paddingBottom="0dp"
-                    android:text="Mumbai"
+                    android:text="User Location"
                     android:textColor="?attr/colorSurfaceInverse"
                     android:textSize="20sp"
                     app:drawableTint="?attr/colorSurfaceInverse"
@@ -146,7 +147,7 @@
                     android:layout_weight="1"
                     android:foregroundGravity="center"
                     android:gravity="center"
-                    android:text="040"
+                    android:text="00"
                     android:textColor="#FF0000"
                     android:textSize="70sp" />
 
@@ -164,7 +165,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="North"
+                        android:text="Direction"
                         android:textColor="?attr/colorSurfaceInverse"
                         android:textStyle="bold"
                         tools:ignore="HardcodedText" />
@@ -174,7 +175,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="37.422"
+                        android:text="0"
                         android:textColor="?attr/colorSurfaceInverse"
                         tools:ignore="HardcodedText" />
 
@@ -183,7 +184,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="-121.202"
+                        android:text="0"
                         android:textColor="?attr/colorSurfaceInverse"
                         tools:ignore="HardcodedText" />
 
@@ -192,7 +193,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="50"
+                        android:text="9.8"
                         android:textColor="?attr/colorSurfaceInverse"
                         tools:ignore="HardcodedText" />
                 </LinearLayout>

@@ -16,6 +16,7 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageButton;
 import android.widget.Toast;
@@ -39,6 +40,7 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
@@ -50,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private float[] gravity;
     private float[] geomagnetic;
     private float currentDegree = 0f;
+    private RotateAnimation rotateAnimation;
 
     private final ActivityResultLauncher<String> permissionLauncher = registerForActivityResult(
             new ActivityResultContracts.RequestPermission(),
@@ -59,6 +62,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 } else {
                     Log.e("Permission", "Location permission denied.");
                     binding.cityTV.setText("Location permission denied");
+                    Toast.makeText(this, "Location permission is required for this app to function.", Toast.LENGTH_LONG).show();
                 }
             }
     );
@@ -76,7 +80,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         initSensors();
         initLocationProvider();
 
-        // Check for location permission
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
             permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION);
@@ -85,7 +88,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
 
         ImageButton infoButton = findViewById(R.id.infoButton);
-
         infoButton.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, infoActivity.class);
             startActivity(intent);
@@ -101,12 +103,26 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 Toast.makeText(MainActivity.this, "Fetching location. Please try again.", Toast.LENGTH_SHORT).show();
             }
         });
+
+        rotateAnimation = new RotateAnimation(
+                0, 0,
+                RotateAnimation.RELATIVE_TO_SELF, 0.5f,
+                RotateAnimation.RELATIVE_TO_SELF, 0.5f
+        );
+        rotateAnimation.setDuration(50);
+        rotateAnimation.setFillAfter(true);
     }
 
     private void initSensors() {
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        magnetometer = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        if (sensorManager != null) {
+            accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+            magnetometer = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+
+            if (accelerometer == null || magnetometer == null) {
+                Toast.makeText(this, "Required sensors are not available on this device.", Toast.LENGTH_LONG).show();
+            }
+        }
     }
 
     private void initLocationProvider() {
@@ -120,7 +136,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             LocationRequest locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY)
                     .setIntervalMillis(5000)
                     .setMinUpdateIntervalMillis(1000)
-                    .setMaxUpdates(1)
+                    .setMaxUpdates(3) // Allow up to 3 updates
                     .build();
 
             fusedLocationProviderClient.requestLocationUpdates(locationRequest, new LocationCallback() {
@@ -163,18 +179,27 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             return;
         }
 
-        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
-        try {
-            List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-            if (addresses != null && !addresses.isEmpty()) {
-                binding.cityTV.setText(addresses.get(0).getLocality());
-            } else {
-                binding.cityTV.setText("City not found");
-            }
-        } catch (IOException e) {
-            Log.e("Geocoder", "Error getting city name", e);
-            binding.cityTV.setText("Error fetching city");
+        if (!Geocoder.isPresent()) {
+            binding.cityTV.setText("Geocoder not available");
+            return;
         }
+
+        Executors.newSingleThreadExecutor().execute(() -> {
+            Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+            try {
+                List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+                runOnUiThread(() -> {
+                    if (addresses != null && !addresses.isEmpty()) {
+                        binding.cityTV.setText(addresses.get(0).getLocality());
+                    } else {
+                        binding.cityTV.setText("City not found");
+                    }
+                });
+            } catch (IOException e) {
+                Log.e("Geocoder", "Error getting city name", e);
+                runOnUiThread(() -> binding.cityTV.setText("Error fetching city"));
+            }
+        });
     }
 
     @Override
@@ -193,23 +218,27 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             sensorManager.unregisterListener(this);
         }
     }
-
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (event == null) return;
 
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            gravity = event.values;
+            gravity = event.values.clone();
         } else if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
-            geomagnetic = event.values;
+            geomagnetic = event.values.clone();
         }
 
         if (gravity != null && geomagnetic != null) {
-            float[] R = new float[9];
-            float[] I = new float[9];
-            if (SensorManager.getRotationMatrix(R, I, gravity, geomagnetic)) {
+            float[] rotationMatrix = new float[9];
+            float[] inclinationMatrix = new float[9];
+
+            if (SensorManager.getRotationMatrix(rotationMatrix, inclinationMatrix, gravity, geomagnetic)) {
                 float[] orientation = new float[3];
-                SensorManager.getOrientation(R, orientation);
+                SensorManager.getOrientation(rotationMatrix, orientation);
+
+                float azimuthInRadians = orientation[0];
+                float azimuthInDegrees = (float) Math.toDegrees(azimuthInRadians);
+                azimuthInDegrees = (azimuthInDegrees + 360) % 360;
 
                 float declination = 0;
                 if (currentLocation != null) {
@@ -225,33 +254,28 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     return;
                 }
 
-                float azimuthInDegrees = (float) Math.toDegrees(orientation[0]);
-                azimuthInDegrees = (azimuthInDegrees + 360) % 360; // Normalize to [0, 360]
-                float trueNorth = (azimuthInDegrees + declination) % 360;
+                float trueNorth = (azimuthInDegrees + declination + 360) % 360;
 
-                float trueHeading = (azimuthInDegrees + declination + 360) % 360;
+                binding.headingTV.setText(String.valueOf(Math.round(trueNorth)));
+                binding.directionTV.setText(getDirection(trueNorth));
+                float angleChange = Math.abs(trueNorth - currentDegree);
+                if (angleChange > 1.0f) {
+                    RotateAnimation rotate = new RotateAnimation(
+                            currentDegree,
+                            -trueNorth,
+                            Animation.RELATIVE_TO_SELF, 0.5f,
+                            Animation.RELATIVE_TO_SELF, 0.5f
+                    );
+                    rotate.setDuration(200);
+                    rotate.setFillAfter(true);
 
-                // Update UI
-                binding.headingTV.setText(MessageFormat.format("{0}°", Math.round(azimuthInDegrees)));
-                binding.directionTV.setText(getDirection(azimuthInDegrees));
-
-                // Compass animation
-                RotateAnimation rotateAnimation = new RotateAnimation(
-                        currentDegree,
-                        trueHeading,
-                        RotateAnimation.RELATIVE_TO_SELF, 0.5f,
-                        RotateAnimation.RELATIVE_TO_SELF, 0.5f
-                );
-                currentDegree = trueHeading;
-
-                rotateAnimation.setDuration(50);
-                rotateAnimation.setFillAfter(true);
-
-                binding.compassView.startAnimation(rotateAnimation);
-                currentDegree = -azimuthInDegrees;
+                    binding.compassView.startAnimation(rotate);
+                    currentDegree = -trueNorth;
+                }
             }
         }
     }
+
 
     private String getDirection(float degree) {
         if (degree > 22.5 && degree <= 67.5) return "NE";
@@ -266,13 +290,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
-        // Handle changes in sensor accuracy if needed.
     }
 
-    public static double calculateGravity(double latitudeValue) {
-        double g0 = 9.780327; // Gravity at the equator (m/s^2)
-        double k = 0.00193185138639; // Flattening coefficient
-        double e2 = 0.00669437999013; // Eccentricity squared
+    public double calculateGravity(double latitudeValue) {
+        double g0 = 9.780327;
+        double k = 0.00193185138639;
+        double e2 = 0.00669437999013;
         double sinLat = Math.sin(Math.toRadians(latitudeValue));
 
         return g0 * (1 + k * sinLat * sinLat) / Math.sqrt(1 - e2 * sinLat * sinLat);

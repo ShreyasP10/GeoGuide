@@ -27,14 +27,12 @@ public class LocationMap extends AppCompatActivity implements OnMapReadyCallback
         binding = ActivityLocationMapBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // Get the latitude and longitude from the Intent
         Intent intent = getIntent();
         if (intent != null) {
             latitude = intent.getDoubleExtra("latitude", 0.0);
             longitude = intent.getDoubleExtra("longitude", 0.0);
         }
 
-        // Set up the map fragment
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.gmap);
         if (mapFragment != null) {
@@ -44,7 +42,6 @@ public class LocationMap extends AppCompatActivity implements OnMapReadyCallback
 
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
-        // Add a marker at the provided location and move the camera
         LatLng location = new LatLng(latitude, longitude);
         googleMap.addMarker(new MarkerOptions()
                 .position(location)

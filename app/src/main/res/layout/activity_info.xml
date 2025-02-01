@@ -48,8 +48,8 @@
 
         <ImageView
             android:id="@+id/backToMainFromInfo"
-            android:layout_width="59dp"
-            android:layout_height="50dp"
+            android:layout_width="60dp"
+            android:layout_height="45dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/AboutText"
             app:layout_constraintHorizontal_bias="0.0"
@@ -59,7 +59,6 @@
             app:srcCompat="@drawable/arrow_back" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout3"
         android:layout_width="0dp"
@@ -264,7 +263,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="30dp"
                 android:layout_marginTop="4dp"
-                android:text="2.0"
+                android:text="1.0"
                 android:textColor="#FFFFFF" />
 
         </LinearLayout>
@@ -279,5 +278,6 @@
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
