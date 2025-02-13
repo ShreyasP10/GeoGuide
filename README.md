@@ -1,4 +1,4 @@
-GeoGuide
+<b>GeoGuide</b>
 <br>
 GeoGuide is a compass and location-tracking app designed to provide accurate direction and real-time location details using your phone’s magnetometer, accelerometer, and GPS sensors. <br>
 The app ensures a smooth and stabilized compass experience by implementing a low-pass filter to reduce sensor noise and improve accuracy.<br><br>
