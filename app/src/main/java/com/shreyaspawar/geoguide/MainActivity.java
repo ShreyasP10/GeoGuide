@@ -136,7 +136,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             LocationRequest locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY)
                     .setIntervalMillis(5000)
                     .setMinUpdateIntervalMillis(1000)
-                    .setMaxUpdates(3) // Allow up to 3 updates
+                    .setMaxUpdates(3)
                     .build();
 
             fusedLocationProviderClient.requestLocationUpdates(locationRequest, new LocationCallback() {
