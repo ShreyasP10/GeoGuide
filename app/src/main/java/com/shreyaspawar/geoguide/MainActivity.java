@@ -37,6 +37,7 @@ import com.google.android.gms.location.Priority;
 import com.shreyaspawar.geoguide.databinding.ActivityMainBinding;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Locale;
@@ -48,11 +49,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private SensorManager sensorManager;
     private Sensor accelerometer, magnetometer;
     private FusedLocationProviderClient fusedLocationProviderClient;
+    private LocationCallback locationCallback;
     private Location currentLocation;
     private float[] gravity;
     private float[] geomagnetic;
     private float currentDegree = 0f;
     private RotateAnimation rotateAnimation;
+    private static final float ALPHA = 0.15f;
 
     private final ActivityResultLauncher<String> permissionLauncher = registerForActivityResult(
             new ActivityResultContracts.RequestPermission(),
@@ -60,9 +63,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 if (isGranted) {
                     getLocation();
                 } else {
-                    Log.e("Permission", "Location permission denied.");
                     binding.cityTV.setText("Location permission denied");
-                    Toast.makeText(this, "Location permission is required for this app to function.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "Location permission required", Toast.LENGTH_LONG).show();
                 }
             }
     );
@@ -81,35 +83,32 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         initLocationProvider();
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION);
-        } else {
+                == PackageManager.PERMISSION_GRANTED) {
             getLocation();
+        } else {
+            permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION);
         }
 
         ImageButton infoButton = findViewById(R.id.infoButton);
-        infoButton.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, infoActivity.class);
-            startActivity(intent);
-        });
+        infoButton.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, infoActivity.class)));
 
         binding.cityTV.setOnClickListener(v -> {
             if (currentLocation != null) {
-                Intent intentGoToMap = new Intent(MainActivity.this, LocationMap.class);
-                intentGoToMap.putExtra("latitude", currentLocation.getLatitude());
-                intentGoToMap.putExtra("longitude", currentLocation.getLongitude());
-                startActivity(intentGoToMap);
+                Intent intent = new Intent(MainActivity.this, LocationMap.class);
+                intent.putExtra("latitude", currentLocation.getLatitude());
+                intent.putExtra("longitude", currentLocation.getLongitude());
+                startActivity(intent);
             } else {
-                Toast.makeText(MainActivity.this, "Fetching location. Please try again.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Fetching location...", Toast.LENGTH_SHORT).show();
             }
         });
 
         rotateAnimation = new RotateAnimation(
                 0, 0,
-                RotateAnimation.RELATIVE_TO_SELF, 0.5f,
-                RotateAnimation.RELATIVE_TO_SELF, 0.5f
+                Animation.RELATIVE_TO_SELF, 0.5f,
+                Animation.RELATIVE_TO_SELF, 0.5f
         );
-        rotateAnimation.setDuration(50);
+        rotateAnimation.setDuration(250);
         rotateAnimation.setFillAfter(true);
     }
 
@@ -118,10 +117,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (sensorManager != null) {
             accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
             magnetometer = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
-
-            if (accelerometer == null || magnetometer == null) {
-                Toast.makeText(this, "Required sensors are not available on this device.", Toast.LENGTH_LONG).show();
-            }
         }
     }
 
@@ -132,62 +127,60 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @SuppressLint("MissingPermission")
     private void getLocation() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
-            LocationRequest locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY)
-                    .setIntervalMillis(5000)
-                    .setMinUpdateIntervalMillis(1000)
-                    .setMaxUpdates(3) // Allow up to 3 updates
-                    .build();
-
-            fusedLocationProviderClient.requestLocationUpdates(locationRequest, new LocationCallback() {
-                @Override
-                public void onLocationResult(@NonNull LocationResult locationResult) {
-                    if (locationResult != null && locationResult.getLastLocation() != null) {
-                        currentLocation = locationResult.getLastLocation();
-                        Log.d("LocationUpdate", "Latitude: " + currentLocation.getLatitude() +
-                                ", Longitude: " + currentLocation.getLongitude());
-                        updateLocationUI();
-                    } else {
-                        Log.e("LocationError", "Location is null.");
-                        binding.cityTV.setText("Unable to fetch location.");
-                    }
-                }
-            }, null);
-        } else {
-            Log.e("PermissionError", "Location permission is not granted.");
-            binding.cityTV.setText("Location permission not granted.");
-        }
-    }
-
-    private void updateLocationUI() {
-        if (currentLocation == null) {
-            Log.e("LocationError", "Location data is not available yet.");
+                != PackageManager.PERMISSION_GRANTED) {
             return;
         }
 
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(@NonNull LocationResult locationResult) {
+                if (locationResult == null) return;
+                currentLocation = locationResult.getLastLocation();
+                if (currentLocation != null) {
+                    updateLocationUI();
+                }
+            }
+        };
+
+        LocationRequest locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY)
+                .setIntervalMillis(5000)
+                .setMinUpdateIntervalMillis(1000)
+                .setMaxUpdates(3)
+                .build();
+
+        fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, null);
+        fusedLocationProviderClient.getLastLocation().addOnSuccessListener(location -> {
+            if (location != null) {
+                currentLocation = location;
+                updateLocationUI();
+            }
+        });
+    }
+
+    private void updateLocationUI() {
+        if (currentLocation == null) return;
+
         binding.latitudeTV.setText(MessageFormat.format("Latitude: {0}", currentLocation.getLatitude()));
         binding.longitudeTV.setText(MessageFormat.format("Longitude: {0}", currentLocation.getLongitude()));
-        double latitudeValue = currentLocation.getLatitude();
-        double gravityValue = calculateGravity(latitudeValue);
+        double gravityValue = calculateGravity(currentLocation.getLatitude());
         binding.trueHeadingTV.setText(MessageFormat.format("Gravity: {0}", gravityValue));
         getCityName(currentLocation);
     }
 
     private void getCityName(Location location) {
-        if (location == null) {
-            Log.e("LocationError", "No location available to fetch city.");
-            return;
-        }
+        if (location == null || Geocoder.isPresent()) return;
 
-        if (!Geocoder.isPresent()) {
-            binding.cityTV.setText("Geocoder not available");
-            return;
-        }
-
+        WeakReference<MainActivity> activityRef = new WeakReference<>(this);
         Executors.newSingleThreadExecutor().execute(() -> {
-            Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+            Geocoder geocoder = new Geocoder(activityRef.get(), Locale.getDefault());
             try {
-                List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+                List<Address> addresses = geocoder.getFromLocation(
+                        location.getLatitude(), 
+                        location.getLongitude(), 
+                        1
+                );
+                if (activityRef.get() == null || activityRef.get().isFinishing()) return;
+                
                 runOnUiThread(() -> {
                     if (addresses != null && !addresses.isEmpty()) {
                         binding.cityTV.setText(addresses.get(0).getLocality());
@@ -196,7 +189,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     }
                 });
             } catch (IOException e) {
-                Log.e("Geocoder", "Error getting city name", e);
                 runOnUiThread(() -> binding.cityTV.setText("Error fetching city"));
             }
         });
@@ -206,8 +198,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     protected void onResume() {
         super.onResume();
         if (sensorManager != null) {
-            sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI);
-            sensorManager.registerListener(this, magnetometer, SensorManager.SENSOR_DELAY_UI);
+            sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
+            sensorManager.registerListener(this, magnetometer, SensorManager.SENSOR_DELAY_GAME);
         }
     }
 
@@ -217,16 +209,19 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (sensorManager != null) {
             sensorManager.unregisterListener(this);
         }
+        if (fusedLocationProviderClient != null && locationCallback != null) {
+            fusedLocationProviderClient.removeLocationUpdates(locationCallback);
+        }
     }
-    
+
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (event == null) return;
 
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            gravity = event.values.clone();
+            gravity = lowPass(event.values.clone(), gravity);
         } else if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
-            geomagnetic = event.values.clone();
+            geomagnetic = lowPass(event.values.clone(), geomagnetic);
         }
 
         if (gravity != null && geomagnetic != null) {
@@ -250,35 +245,45 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                             System.currentTimeMillis()
                     );
                     declination = geomagneticField.getDeclination();
-                } else {
-                    Log.e("CompassError", "Current location is null.");
-                    return;
                 }
 
                 float trueNorth = (azimuthInDegrees + declination + 360) % 360;
 
                 binding.headingTV.setText(String.valueOf(Math.round(trueNorth)));
                 binding.directionTV.setText(getDirection(trueNorth));
-                float angleChange = Math.abs(trueNorth - currentDegree);
-                if (angleChange > 1.0f) {
-                    RotateAnimation rotate = new RotateAnimation(
-                            currentDegree,
-                            -trueNorth,
-                            Animation.RELATIVE_TO_SELF, 0.5f,
-                            Animation.RELATIVE_TO_SELF, 0.5f
-                    );
-                    rotate.setDuration(200);
-                    rotate.setFillAfter(true);
 
-                    binding.compassView.startAnimation(rotate);
-                    currentDegree = -trueNorth;
+                if (rotateAnimation != null) {
+                    rotateAnimation.cancel();
                 }
+
+                rotateAnimation = new RotateAnimation(
+                        currentDegree,
+                        -trueNorth,
+                        Animation.RELATIVE_TO_SELF, 0.5f,
+                        Animation.RELATIVE_TO_SELF, 0.5f
+                );
+                rotateAnimation.setDuration(250);
+                rotateAnimation.setFillAfter(true);
+
+                binding.compassView.startAnimation(rotateAnimation);
+                currentDegree = -trueNorth;
             }
         }
     }
 
+    private float[] lowPass(float[] input, float[] output) {
+
+        if (output == null) return input;
+        
+        for (int i = 0; i < input.length; i++) {
+            output[i] = output[i] + ALPHA * (input[i] - output[i]);
+        }
+
+        return output;
+    }
 
     private String getDirection(float degree) {
+
         if (degree > 22.5 && degree <= 67.5) return "NE";
         if (degree > 67.5 && degree <= 112.5) return "E";
         if (degree > 112.5 && degree <= 157.5) return "SE";
@@ -287,20 +292,19 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (degree > 247.5 && degree <= 292.5) return "W";
         if (degree > 292.5 && degree <= 337.5) return "NW";
         return "N";
+
     }
-
-
 
     public double calculateGravity(double latitudeValue) {
         double g0 = 9.780327;
         double k = 0.00193185138639;
         double e2 = 0.00669437999013;
         double sinLat = Math.sin(Math.toRadians(latitudeValue));
-
         return g0 * (1 + k * sinLat * sinLat) / Math.sqrt(1 - e2 * sinLat * sinLat);
     }
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
     }
 }
