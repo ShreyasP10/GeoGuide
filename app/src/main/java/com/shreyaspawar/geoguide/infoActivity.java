@@ -27,16 +27,19 @@ public class infoActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+        
         backtoMain=findViewById(R.id.backToMainFromInfo);
         backtoMain.setOnClickListener(v -> {
             finish();
         });
+        
         int versionCode = getAppVersionCode(this);
 
         appVersionCode=findViewById(R.id.appVersionCode);
         appVersionCode.setText(String.valueOf(versionCode));
 
     }
+    
     public static int getAppVersionCode(Context context) {
         try {
             PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);

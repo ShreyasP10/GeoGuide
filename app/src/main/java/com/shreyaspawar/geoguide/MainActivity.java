@@ -218,6 +218,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             sensorManager.unregisterListener(this);
         }
     }
+    
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (event == null) return;
@@ -288,9 +289,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         return "N";
     }
 
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-    }
+
 
     public double calculateGravity(double latitudeValue) {
         double g0 = 9.780327;
@@ -299,5 +298,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         double sinLat = Math.sin(Math.toRadians(latitudeValue));
 
         return g0 * (1 + k * sinLat * sinLat) / Math.sqrt(1 - e2 * sinLat * sinLat);
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
     }
 }

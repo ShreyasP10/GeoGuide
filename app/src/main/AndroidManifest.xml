@@ -17,6 +17,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.GeoGuide"
         tools:targetApi="31">
+        
         <activity
             android:name=".ui.login.LoginActivity"
             android:exported="false"
@@ -24,10 +25,12 @@
         <activity
             android:name=".LocationMap"
             android:exported="false" />
+        
         <activity
             android:name=".infoActivity"
             android:exported="false"
             android:parentActivityName=".MainActivity" />
+        
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -38,9 +41,15 @@
             </intent-filter>
         </activity>
 
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyAdsq8_4qoLhtCc1q2pyv0-hm3u8ezd0H8" />
+        
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="YOUR-API-KEY"/>
+
     </application>
 
 </manifest>
