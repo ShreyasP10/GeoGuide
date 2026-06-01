@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "com.shreyaspawar.geoguide"
-        minSdk = 31
+        minSdk = 30
         targetSdk = 34
         versionCode = 3
         versionName = "3.0"
