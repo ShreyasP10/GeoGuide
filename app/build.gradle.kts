@@ -1,11 +1,12 @@
 
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.hilt)
 }
 
 android {
     namespace = "com.shreyaspawar.geoguide"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.shreyaspawar.geoguide"
@@ -46,10 +47,14 @@ dependencies {
     implementation(libs.annotation)
     implementation(libs.lifecycle.livedata.ktx)
     implementation(libs.lifecycle.viewmodel.ktx)
+    implementation("androidx.dynamicanimation:dynamicanimation:1.0.0")
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
     implementation("com.google.android.gms:play-services-maps:18.0.1")
     implementation("com.google.android.gms:play-services-location:21.3.0")
+
+    implementation(libs.hilt.android)
+    annotationProcessor(libs.hilt.compiler)
 
 }

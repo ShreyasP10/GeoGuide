@@ -1,0 +1,19 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+    <path
+        android:pathData="M100,100m-90,0a90,90 0,1 1,180 0a90,90 0,1 1,-180 0"
+        android:strokeColor="#2196F3"
+        android:strokeWidth="1"/>
+    <!-- Degree markers -->
+    <path
+        android:pathData="M100,10L100,15M145,21L142,26M179,55L174,58M190,100L185,100M179,145L174,142M145,179L142,174M100,190L100,185M55,179L58,174M21,145L26,142M10,100L15,100M21,55L26,58M55,21L58,26"
+        android:strokeColor="#2196F3"
+        android:strokeWidth="2"/>
+    <path
+        android:pathData="M100,100m-40,0a40,40 0,1 1,80 0a40,40 0,1 1,-80 0"
+        android:strokeColor="#2196F3"
+        android:strokeWidth="0.5"/>
+</vector>

@@ -14,7 +14,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-public class infoActivity extends AppCompatActivity {
+public class InfoActivity extends AppCompatActivity {
     ImageView backtoMain;
     TextView appVersionCode;
     @Override

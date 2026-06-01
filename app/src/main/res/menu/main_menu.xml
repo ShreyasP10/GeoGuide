@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_themes"
+        android:title="Compass Themes"
+        android:icon="@android:drawable/ic_menu_manage"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_info"
+        android:title="About"
+        android:icon="@drawable/infoicon"
+        app:showAsAction="never" />
+</menu>
