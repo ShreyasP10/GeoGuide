@@ -3,9 +3,10 @@
 
     <style name="Title">
         <item name="android:textSize">24sp</item>
-        <item name="android:textColor">@color/white</item>
+        <item name="android:textColor">@color/accent_red</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:fontFamily">sans-serif</item>"
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:letterSpacing">0.05</item>
     </style>
 
 </resources>

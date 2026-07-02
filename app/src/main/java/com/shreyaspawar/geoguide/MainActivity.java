@@ -12,6 +12,7 @@ import android.hardware.SensorManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.net.Uri;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraManager;
 import androidx.dynamicanimation.animation.SpringAnimation;
@@ -292,11 +293,47 @@ public class MainActivity extends AppCompatActivity {
 
         double lat = currentLocation.getLatitude();
         double lon = currentLocation.getLongitude();
+        String mapsUrl = "https://www.google.com/maps/search/?api=1&query=" + lat + "," + lon;
+        String shortLoc = String.format(Locale.getDefault(),
+                "Lat: %.4f, Lng: %.4f\n%s", lat, lon, mapsUrl);
+
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("SOS - Share Location")
+                .setMessage("How would you like to share your current location?")
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setPositiveButton("WhatsApp", (d, w) -> shareViaWhatsApp(shortLoc, mapsUrl))
+                .setNegativeButton("Other Apps", (d, w) -> shareViaOtherApps())
+                .setNeutralButton("Cancel", null)
+                .show();
+    }
+
+    private void shareViaWhatsApp(String shortLoc, String mapsUrl) {
+        String waText = "🚨 SOS - GeoGuide\nMy location: " + shortLoc;
+
+        Intent waIntent = new Intent(Intent.ACTION_SEND);
+        waIntent.setType("text/plain");
+        waIntent.setPackage("com.whatsapp");
+        waIntent.putExtra(Intent.EXTRA_TEXT, waText);
+        try {
+            startActivity(waIntent);
+        } catch (Exception e) {
+            try {
+                String url = "https://wa.me/?text=" + Uri.encode(waText);
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                startActivity(browserIntent);
+            } catch (Exception ex) {
+                Toast.makeText(this, "WhatsApp not found. Install it first.", Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    private void shareViaOtherApps() {
+        double lat = currentLocation.getLatitude();
+        double lon = currentLocation.getLongitude();
         double alt = currentLocation.getAltitude();
         float acc = currentLocation.getAccuracy();
         long time = currentLocation.getTime();
         String timestamp = new java.text.SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(new java.util.Date(time));
-
         String mapsUrl = "https://www.google.com/maps/search/?api=1&query=" + lat + "," + lon;
 
         String message = String.format(Locale.getDefault(),
@@ -361,7 +398,11 @@ public class MainActivity extends AppCompatActivity {
         });
 
         viewModel.getPressure().observe(this, pressure -> {
-            binding.pressureTV.setText(MessageFormat.format("Pres: {0} hPa", Math.round(pressure)));
+            if (pressure != null && pressure > 0) {
+                binding.pressureTV.setText(MessageFormat.format("Pres: {0} hPa", Math.round(pressure)));
+            } else {
+                binding.pressureTV.setText("Pres: -- hPa");
+            }
         });
 
         viewModel.getAzimuth().observe(this, azimuth -> {
@@ -441,7 +482,6 @@ public class MainActivity extends AppCompatActivity {
             LocationRequest locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY)
                     .setIntervalMillis(5000)
                     .setMinUpdateIntervalMillis(1000)
-                    .setMaxUpdates(3)
                     .build();
 
             fusedLocationProviderClient.requestLocationUpdates(locationRequest, new LocationCallback() {
@@ -477,8 +517,16 @@ public class MainActivity extends AppCompatActivity {
         double altitude = currentLocation.getAltitude();
         float speed = currentLocation.getSpeed() * 3.6f;
 
-        binding.altitudeTV.setText(MessageFormat.format("Alt: {0}m", Math.round(altitude)));
-        binding.speedTV.setText(MessageFormat.format("Speed: {0} km/h", Math.round(speed)));
+        if (currentLocation.hasAltitude()) {
+            binding.altitudeTV.setText(MessageFormat.format("Alt: {0}m", Math.round(altitude)));
+        } else {
+            binding.altitudeTV.setText("Alt: --m");
+        }
+        if (speed > 0.5f) {
+            binding.speedTV.setText(MessageFormat.format("Speed: {0} km/h", Math.round(speed)));
+        } else {
+            binding.speedTV.setText("Speed: -- km/h");
+        }
 
         double latitudeValue = currentLocation.getLatitude();
         double gravityValue = calculateGravity(latitudeValue);

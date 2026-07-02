@@ -6,18 +6,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:keepScreenOn="true"
+    android:background="@color/black"
     tools:context=".MainActivity">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorSurface"
+        android:background="@color/dark_surface"
         app:layout_constraintTop_toTopOf="parent"
         app:title="GeoGuide"
         app:titleCentered="true"
         app:titleTextAppearance="@style/Title"
-        app:titleTextColor="#F30000" />
+        app:titleTextColor="@color/accent_red" />
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -29,18 +30,18 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingBottom="80dp">
+            android:paddingBottom="96dp">
 
             <ImageView
                 android:id="@+id/compassView"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:padding="16dp"
+                android:padding="12dp"
                 app:layout_constraintDimensionRatio="1:1"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintWidth_percent="0.95"
+                app:layout_constraintWidth_percent="0.92"
                 app:srcCompat="@drawable/compass" />
 
             <ImageView
@@ -53,22 +54,25 @@
                 app:layout_constraintTop_toTopOf="@+id/compassView"
                 app:layout_constraintVertical_bias="0.05"
                 app:srcCompat="@android:drawable/ic_menu_compass"
-                app:tint="#F30000" />
+                app:tint="@color/accent_red" />
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/dashboardCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="12dp"
+                app:cardBackgroundColor="@color/dark_card"
                 app:cardCornerRadius="20dp"
-                app:cardElevation="2dp"
+                app:cardElevation="4dp"
+                app:strokeColor="@color/accent_blue"
+                app:strokeWidth="1dp"
                 app:layout_constraintTop_toBottomOf="@+id/compassView">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="12dp">
+                    android:padding="16dp">
 
                     <LinearLayout
                         android:id="@+id/locationHeader"
@@ -81,7 +85,7 @@
                             android:layout_width="20dp"
                             android:layout_height="20dp"
                             android:src="@drawable/location_on_24px"
-                            app:tint="?attr/colorPrimary" />
+                            app:tint="@color/accent_cyan" />
 
                         <TextView
                             android:id="@+id/cityTV"
@@ -89,6 +93,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
                             android:text="Detecting Location..."
+                            android:textColor="@color/text_primary"
                             android:textSize="18sp"
                             android:textStyle="bold" />
                     </LinearLayout>
@@ -96,7 +101,8 @@
                     <com.google.android.material.divider.MaterialDivider
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:layout_marginVertical="12dp" />
+                        android:layout_marginVertical="12dp"
+                        app:dividerColor="@color/accent_blue" />
 
                     <GridLayout
                         android:layout_width="match_parent"
@@ -106,15 +112,15 @@
                         android:rowOrderPreserved="false"
                         android:useDefaultMargins="true">
 
-                        <!-- Heading & Direction -->
                         <com.google.android.material.card.MaterialCardView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_columnWeight="1"
-                            app:cardBackgroundColor="@android:color/transparent"
+                            app:cardBackgroundColor="@color/dark_surface"
                             app:cardElevation="0dp"
-                            app:strokeColor="?attr/colorOutlineVariant"
-                            app:strokeWidth="0.5dp">
+                            app:strokeColor="@color/accent_blue"
+                            app:strokeWidth="0.5dp"
+                            app:cardCornerRadius="12dp">
 
                             <LinearLayout
                                 android:layout_width="match_parent"
@@ -128,7 +134,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="0°"
-                                    android:textColor="?attr/colorPrimary"
+                                    android:textColor="@color/accent_cyan"
                                     android:textSize="28sp"
                                     android:textStyle="bold" />
 
@@ -138,19 +144,20 @@
                                     android:layout_height="wrap_content"
                                     android:alpha="0.7"
                                     android:text="NORTH"
+                                    android:textColor="@color/text_secondary"
                                     android:textSize="12sp" />
                             </LinearLayout>
                         </com.google.android.material.card.MaterialCardView>
 
-                        <!-- Gravity -->
                         <com.google.android.material.card.MaterialCardView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_columnWeight="1"
-                            app:cardBackgroundColor="@android:color/transparent"
+                            app:cardBackgroundColor="@color/dark_surface"
                             app:cardElevation="0dp"
-                            app:strokeColor="?attr/colorOutlineVariant"
-                            app:strokeWidth="0.5dp">
+                            app:strokeColor="@color/accent_blue"
+                            app:strokeWidth="0.5dp"
+                            app:cardCornerRadius="12dp">
 
                             <LinearLayout
                                 android:id="@+id/gravityContainer"
@@ -165,7 +172,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="9.81"
-                                    android:textColor="?attr/colorSecondary"
+                                    android:textColor="@color/accent_green"
                                     android:textSize="22sp"
                                     android:textStyle="bold" />
 
@@ -174,19 +181,20 @@
                                     android:layout_height="wrap_content"
                                     android:alpha="0.7"
                                     android:text="Gravity m/s²"
+                                    android:textColor="@color/text_secondary"
                                     android:textSize="10sp" />
                             </LinearLayout>
                         </com.google.android.material.card.MaterialCardView>
 
-                        <!-- Coordinates -->
                         <com.google.android.material.card.MaterialCardView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_columnWeight="1"
-                            app:cardBackgroundColor="@android:color/transparent"
+                            app:cardBackgroundColor="@color/dark_surface"
                             app:cardElevation="0dp"
-                            app:strokeColor="?attr/colorOutlineVariant"
-                            app:strokeWidth="0.5dp">
+                            app:strokeColor="@color/accent_blue"
+                            app:strokeWidth="0.5dp"
+                            app:cardCornerRadius="12dp">
 
                             <LinearLayout
                                 android:layout_width="match_parent"
@@ -200,6 +208,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="0.0000"
+                                    android:textColor="@color/text_primary"
                                     android:textSize="13sp" />
 
                                 <TextView
@@ -207,19 +216,20 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="0.0000"
+                                    android:textColor="@color/text_primary"
                                     android:textSize="13sp" />
                             </LinearLayout>
                         </com.google.android.material.card.MaterialCardView>
 
-                        <!-- Status -->
                         <com.google.android.material.card.MaterialCardView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_columnWeight="1"
-                            app:cardBackgroundColor="@android:color/transparent"
+                            app:cardBackgroundColor="@color/dark_surface"
                             app:cardElevation="0dp"
-                            app:strokeColor="?attr/colorOutlineVariant"
-                            app:strokeWidth="0.5dp">
+                            app:strokeColor="@color/accent_blue"
+                            app:strokeWidth="0.5dp"
+                            app:cardCornerRadius="12dp">
 
                             <LinearLayout
                                 android:layout_width="match_parent"
@@ -234,6 +244,7 @@
                                     android:layout_height="wrap_content"
                                     android:gravity="center"
                                     android:text="Checking..."
+                                    android:textColor="@color/accent_orange"
                                     android:textSize="11sp"
                                     android:textStyle="bold" />
 
@@ -242,6 +253,7 @@
                                     android:layout_height="wrap_content"
                                     android:alpha="0.7"
                                     android:text="Sensor Status"
+                                    android:textColor="@color/text_secondary"
                                     android:textSize="10sp" />
                             </LinearLayout>
                         </com.google.android.material.card.MaterialCardView>
@@ -250,24 +262,27 @@
                     <com.google.android.material.divider.MaterialDivider
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:layout_marginVertical="12dp" />
+                        android:layout_marginVertical="12dp"
+                        app:dividerColor="@color/accent_blue" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
+                        android:layout_marginTop="8dp"
                         android:baselineAligned="false"
                         android:orientation="horizontal">
 
-                        <!-- Sun Card -->
                         <com.google.android.material.card.MaterialCardView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="4dp"
                             android:layout_weight="1"
-                            app:cardBackgroundColor="?attr/colorSurfaceVariant"
+                            app:cardBackgroundColor="@color/dark_surface"
                             app:cardElevation="0dp"
-                            app:contentPadding="8dp">
+                            app:contentPadding="8dp"
+                            app:cardCornerRadius="12dp"
+                            app:strokeColor="@color/accent_blue"
+                            app:strokeWidth="0.5dp">
 
                             <LinearLayout
                                 android:id="@+id/sunContainer"
@@ -279,7 +294,8 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="☀️ Sun"
+                                    android:text="Sun"
+                                    android:textColor="@color/accent_orange"
                                     android:textSize="12sp"
                                     android:textStyle="bold" />
 
@@ -289,19 +305,22 @@
                                     android:layout_height="wrap_content"
                                     android:gravity="center"
                                     android:text="--:--"
+                                    android:textColor="@color/text_secondary"
                                     android:textSize="10sp" />
                             </LinearLayout>
                         </com.google.android.material.card.MaterialCardView>
 
-                        <!-- Moon Card -->
                         <com.google.android.material.card.MaterialCardView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_marginHorizontal="4dp"
                             android:layout_weight="1"
-                            app:cardBackgroundColor="?attr/colorSurfaceVariant"
+                            app:cardBackgroundColor="@color/dark_surface"
                             app:cardElevation="0dp"
-                            app:contentPadding="8dp">
+                            app:contentPadding="8dp"
+                            app:cardCornerRadius="12dp"
+                            app:strokeColor="@color/accent_blue"
+                            app:strokeWidth="0.5dp">
 
                             <LinearLayout
                                 android:id="@+id/moonContainer"
@@ -313,7 +332,8 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="🌙 Moon"
+                                    android:text="Moon"
+                                    android:textColor="@color/text_primary"
                                     android:textSize="12sp"
                                     android:textStyle="bold" />
 
@@ -323,19 +343,22 @@
                                     android:layout_height="wrap_content"
                                     android:gravity="center"
                                     android:text="Loading..."
+                                    android:textColor="@color/text_secondary"
                                     android:textSize="10sp" />
                             </LinearLayout>
                         </com.google.android.material.card.MaterialCardView>
 
-                        <!-- Weather Card -->
                         <com.google.android.material.card.MaterialCardView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="4dp"
                             android:layout_weight="1"
-                            app:cardBackgroundColor="?attr/colorSurfaceVariant"
+                            app:cardBackgroundColor="@color/dark_surface"
                             app:cardElevation="0dp"
-                            app:contentPadding="8dp">
+                            app:contentPadding="8dp"
+                            app:cardCornerRadius="12dp"
+                            app:strokeColor="@color/accent_blue"
+                            app:strokeWidth="0.5dp">
 
                             <LinearLayout
                                 android:id="@+id/weatherContainer"
@@ -347,7 +370,8 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="☁️ Weather"
+                                    android:text="Weather"
+                                    android:textColor="@color/accent_cyan"
                                     android:textSize="12sp"
                                     android:textStyle="bold" />
 
@@ -357,6 +381,7 @@
                                     android:layout_height="wrap_content"
                                     android:gravity="center"
                                     android:text="Tap info"
+                                    android:textColor="@color/text_secondary"
                                     android:textSize="10sp" />
                             </LinearLayout>
                         </com.google.android.material.card.MaterialCardView>
@@ -374,7 +399,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="16dp"
-                            android:text="Alt: 0m"
+                            android:text="Alt: --m"
+                            android:textColor="@color/text_primary"
                             android:textSize="12sp"
                             android:textStyle="bold" />
 
@@ -383,7 +409,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="16dp"
-                            android:text="Pres: 0 hPa"
+                            android:text="Pres: -- hPa"
+                            android:textColor="@color/text_primary"
                             android:textSize="12sp"
                             android:textStyle="bold" />
                     </LinearLayout>
@@ -395,7 +422,8 @@
                         android:layout_marginTop="8dp"
                         android:alpha="0.8"
                         android:gravity="center"
-                        android:text="Speed: 0 km/h"
+                        android:text="Speed: -- km/h"
+                        android:textColor="@color/text_secondary"
                         android:textSize="12sp" />
 
                 </LinearLayout>
@@ -410,7 +438,7 @@
         android:layout_margin="16dp"
         android:text="SOS"
         android:textColor="@android:color/white"
-        app:backgroundTint="#D32F2F"
+        app:backgroundTint="@color/accent_red"
         app:icon="@drawable/location_on_24px"
         app:iconTint="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -423,17 +451,17 @@
         android:layout_margin="16dp"
         android:contentDescription="Flashlight"
         android:src="@android:drawable/ic_menu_compass"
-        app:backgroundTint="?attr/colorSurface"
+        app:backgroundTint="@color/dark_card"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:tint="?attr/colorOnSurface" />
+        app:tint="@color/accent_cyan" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/calibrationOverlay"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        app:cardBackgroundColor="#CC000000"
+        app:cardBackgroundColor="@color/calibration_bg"
         app:cardCornerRadius="16dp"
         app:cardElevation="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -452,7 +480,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Compass Calibration"
-                android:textColor="@android:color/white"
+                android:textColor="@color/accent_cyan"
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
@@ -462,7 +490,7 @@
                 android:layout_marginTop="8dp"
                 android:gravity="center"
                 android:text="Wave your phone in a '∞' motion to improve accuracy."
-                android:textColor="@android:color/white" />
+                android:textColor="@color/text_primary" />
 
             <Button
                 android:id="@+id/closeCalibrationBtn"
@@ -471,7 +499,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="Got it"
-                android:textColor="@android:color/white" />
+                android:textColor="@color/accent_cyan" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
