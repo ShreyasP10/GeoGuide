@@ -12,8 +12,8 @@ android {
         applicationId = "com.shreyaspawar.geoguide"
         minSdk = 30
         targetSdk = 34
-        versionCode = 4
-        versionName = "4.0"
+        versionCode = 5
+        versionName = "4.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
